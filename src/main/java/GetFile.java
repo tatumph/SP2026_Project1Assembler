@@ -1,4 +1,4 @@
-
+import java.io.*;
 import java.util.Scanner;
 
 public class GetFile {
@@ -7,7 +7,13 @@ public class GetFile {
     }
 
 
-    public void readFile(String s) {
-
+    public void readFile(String s) throws FileNotFoundException {
+        File file = new File("code/" + s);
+        try (Scanner reader = new Scanner(file)) {
+            while (reader.hasNextLine()) {
+                String line = reader.nextLine();
+                System.out.println(line);
+            }
+        }
     }
 }
