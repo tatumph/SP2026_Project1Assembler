@@ -6,6 +6,13 @@ import java.util.Scanner;
 
 public class pepasm {
     public List<String> charSet = new ArrayList<String>();
+    public List<String> hexSet = new ArrayList<String>();
+
+
+    public static void  main(String[] args) {
+
+
+    }
 
     public static String getFileName() {
         return "program1.pep";
@@ -22,5 +29,17 @@ public class pepasm {
                 System.out.println(line);
             }
         }
+    }
+
+    public void outputHex() {
+        String set = null;
+        for (int i = 0; i < charSet.size(); i++) {
+            set = charSet.get(i);
+            hexSet.add(translateAssembly(set));
+        }
+    }
+
+    private String translateAssembly(String set) {
+        return set;
     }
 }
