@@ -40,6 +40,31 @@ public class pepasm {
     }
 
     private String translateAssembly(String set) {
-        return set;
+        String result = "";
+        if (!set.contains("0x")) {
+            switch (set) {
+                case "STBA":
+                    hexSet.add("store byte at");
+                case "LDBA":
+                    hexSet.add("load byte at");
+                case "STWA":
+                    hexSet.add("store word at");
+                case "LDWA":
+                    hexSet.add("load word at");
+                case "ANDA":
+                    hexSet.add("Bitwise and");
+                case "ASLA":
+                    hexSet.add("shift left");
+                case "ASRA":
+                    hexSet.add("shift right");
+                case "STOP":
+                    hexSet.add("stop execution");
+                case "CPBA":
+                    hexSet.add("compare byte at");
+                case "BRNE":
+                    hexSet.add("branch if not equal");
+            }
+        }
+        return result;
     }
 }
