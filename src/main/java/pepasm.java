@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.Scanner;
 
-public class GetFile {
+public class pepasm {
     public static String getFileName() {
         return "program1.pep";
     }
