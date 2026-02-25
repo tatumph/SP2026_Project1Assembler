@@ -10,12 +10,9 @@ public class pepasm {
 
 
     public static void  main(String[] args) {
+       // String fileName = args[0];
+        String fileName = "program1.pep";
 
-
-    }
-
-    public static String getFileName() {
-        return "program1.pep";
     }
 
 
