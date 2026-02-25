@@ -1,34 +1,68 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class pepasm {
     public List<String> charSet = new ArrayList<String>();
     public List<String> hexSet = new ArrayList<String>();
 
 
-    public static void  main(String[] args) {
+    public static void  main(String[] args) throws Exception {
+        if(args.length != 1){
+            System.out.println("Runtime: Use java pepasm file.pep");
+            return;
+        }
 
+        HashMap<> opcodeToHex = getOpcodeToHexHash();
 
+        String fileName = args[0]; //get first argument (ie, file.pep)
+        readFile(fileName);
     }
 
-    public static String getFileName() {
+    protected static HashMap<String, String> getOpcodeToHexHash(){
+        HashMap<String, String> opcodeToHex = new HashMap<>();
+        opcodeToHex.put("STOP", "00");
+        opcodeToHex.put("LDWA", "C0");
+        opcodeToHex.put("LDBA", "D0");
+        opcodeToHex.put("STWA", "E1");
+        opcodeToHex.put("STBA", "F1");
+        opcodeToHex.put("ADDA", "60");
+        opcodeToHex.put("SUBA", "70");
+        opcodeToHex.put("ANDA", "80");
+        opcodeToHex.put("ASLA", "0A");
+        opcodeToHex.put("ASRA", "0C");
+        opcodeToHex.put("CPBA", "B0");
+        opcodeToHex.put("BRNE", "1A");
+        return opcodeToHex;
+    }
+
+    public String getFileName() {
         return "program1.pep";
     }
 
 
-    public void readFile(String s) throws FileNotFoundException {
-        File file = new File("code/" + s);
-        System.out.println("Original Assembly code: ");
+    public static void readFile(String file) throws FileNotFoundException {
+       // File file = new File("code/" + s);
+       // System.out.println("Original Assembly code: ");
+        StringBuilder output = new StringBuilder();
         try (Scanner reader = new Scanner(file)) {
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
-                charSet.add(Arrays.toString(line.split(" ")));
-                System.out.println(line);
+
+                if (line.equals(".END")) {
+                    break;
+                }
+                if (line.isEmpty()) {
+                    continue;
+                }
+//                charSet.add(Arrays.toString(line.split(" ")));
+//                System.out.println(line);
+                this.assembleLine(line, output);
             }
         }
+    }
+
+    public void assembleLine(String line, StringBuilder output){
+
     }
 
     public void outputHex() {
