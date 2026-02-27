@@ -12,7 +12,7 @@ public class Pepasm {
         opcodeTable.put("STWA", Map.of("d", 0xE1));
         opcodeTable.put("ANDA", Map.of("i", 0x80, "d", 0x81));
         opcodeTable.put("CPBA", Map.of("i", 0xB0, "d", 0xB1));
-        opcodeTable.put("BRNE", Map.of("d", 0x1A));
+        opcodeTable.put("BRNE", Map.of("i", 0x1A, "d", 0x1A));
 
         opcodeTable.put("ADDA", Map.of("i", 0x70, "d", 0x71));
         opcodeTable.put("SUBA", Map.of("i", 0x78, "d", 0x79));
@@ -22,6 +22,9 @@ public class Pepasm {
         opcodeTable.put("STOP", Map.of("", 0x00));
     }
 
+    static Map<String, Integer> labelTable = new HashMap<>();
+    static int programCounter = 0;
+
     public static void  main(String[] args) throws Exception {
         if(args.length != 1){
             System.out.println("Runtime: Use java pepasm file.pep");
@@ -29,7 +32,7 @@ public class Pepasm {
         }
 
         String fileName = args[0]; //get first argument (ie, file.pep)
-        System.out.println("Filename"+ fileName);
+        System.out.println("Filename "+ fileName);
         readFile(fileName);
     }
 
@@ -40,33 +43,66 @@ public class Pepasm {
 
     public static void readFile(String file) throws FileNotFoundException {
         StringBuilder output = new StringBuilder();
+        List<String> lines = new ArrayList<>();
         try (Scanner reader = new Scanner(new File(file))) {
-            while (reader.hasNextLine()) {
+            while(reader.hasNextLine()){
                 String line = reader.nextLine();
+                if(line.equals(".END")) break;
+                lines.add(line);
+            }
 
-                if (line.equals(".END")) {
-                    break;
+            programCounter = 0;
+            labelTable.clear(); //Prevent unwanted things 'clogging' up the map
+
+            for(String line : lines){
+                line = stripComments(line);
+                if(line.isEmpty()) continue;
+
+                if(line.contains(":")){
+                    String label = line.substring(0, line.indexOf(":")).trim();
+                    labelTable.put(label, programCounter);
+
+                    line = line.substring(line.indexOf(":")+1).trim();
+                    if (line.isEmpty()) continue;
                 }
-                if (line.isEmpty()) {
-                    continue;
+
+                programCounter += instructionSize(line);
+            }
+
+            programCounter = 0;
+            for(String rawLine : lines){
+                String line = stripComments(rawLine);
+                if(line.isEmpty()) continue;
+
+                if(line.contains(":")){
+                    line = line.substring(line.indexOf(":")+1).trim();
+                    if(line.isEmpty()) continue;
                 }
+
                 assembleLine(line, output);
-                //At this point, I don't care if the machine code prints to all one line.
             }
             System.out.println(output.toString().trim());
         }
     }
 
-    public static void assembleLine(String line, StringBuilder output){
-        line = line.trim();
-
-        //Remove comments
+    private static String stripComments(String line) {
         if(line.contains(";")){
-            //Treat String as an array of characters and ignores string after ';'
-            line = line.substring(0, line.indexOf(";")).trim();
+            line = line.substring(0, line.indexOf(";"));
         }
+        return line.trim();
+    }
 
-        if(line.isEmpty()) return;
+    private static int instructionSize(String line) {
+        String[] parts = line.split("\\s+", 2); //At most into 2 pieces
+        String opcode = parts[0].toUpperCase();
+
+        if(parts.length == 1){
+            return 1; //opcode only
+        }
+        return 3; //Opcode + 2-byte operand
+    }
+
+    public static void assembleLine(String line, StringBuilder output){
         /*Split line at one or more whitespace characters using regex
           Splits into at most 2 pieces to allow us to parse the opcode and the operand
          */
@@ -116,6 +152,10 @@ public class Pepasm {
     }
 
     public static int parseOperand(String operand){
+        if(labelTable.containsKey(operand)){
+            return labelTable.get(operand);
+        }
+
         if(operand.startsWith("0x") || operand.startsWith("0X")){
             //Specifies to look at the string after 'Ox' and specifies that FC16 is base-16
             return Integer.parseInt(operand.substring(2), 16);
