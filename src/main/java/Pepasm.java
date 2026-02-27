@@ -52,8 +52,8 @@ public class Pepasm {
                 }
                 assembleLine(line, output);
                 //At this point, I don't care if the machine code prints to all one line.
-                System.out.println(output.toString().trim());
             }
+            System.out.println(output.toString().trim());
         }
     }
 
